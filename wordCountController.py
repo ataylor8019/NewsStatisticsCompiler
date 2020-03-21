@@ -206,7 +206,7 @@ class masterWordCountController():
             self.__statFile.write(self.__view.getSubjectTotalWordCount())
             self.__statFile.write("\t" + "global unique word count - all subjects: ")
             self.__statFile.write(self.__view.getSubjectUniqueWordCount())
-            self.__statFile.write("\t" + "global individual word counts - all subject: " + "\n")
+            self.__statFile.write("\t" + "global individual word counts - all subjects: " + "\n")
             for entry in self.__view.getSubjectIndividualWordCount():
                 self.__statFile.write(entry)
             self.__statFile.write("\n\n")
