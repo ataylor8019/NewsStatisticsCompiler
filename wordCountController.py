@@ -22,7 +22,6 @@ class masterWordCountController():
         self.__model.setUniqueLabelKey("unique word count")
         self.__model.setGlobalLabelKey("global data")
         self.__model.setSubjectLabelKey("subject data")
-#        self.__model.setGlobalGeneralWordDataDictionary()
 
     def setCurrentSubject(self, currentSubject):
         self.__model.setSubjectValueLabelKey(currentSubject)
@@ -103,9 +102,6 @@ class masterWordCountController():
 
     def sortArticleWordDictionary(self):
         self.__model.sortWordDictionary()
-
-#    def sortSourceWordDictionary(self):
-#        self.__model.sortGlobalSourceWordDictionary()
 
     def sortGlobalSubjectWordDictionary(self):
         self.__model.sortGlobalStatWordDictionary()
@@ -188,11 +184,11 @@ class masterWordCountController():
 
     def writeProcessedSourceData(self):
         try:
-            self.__statFile.write("\t" + "global total word count: ")
+            self.__statFile.write("\t" + "Global Total Word Count: ")
             self.__statFile.write(self.__view.getSourceTotalWordCount())
-            self.__statFile.write("\t" + "global unique word count: ")
+            self.__statFile.write("\t" + "Global Unique Word Count: ")
             self.__statFile.write(self.__view.getSourceUniqueWordCount())
-            self.__statFile.write("\t" + "global individual word counts: " + "\n")
+            self.__statFile.write("\t" + "Global Individual Word Count: " + "\n")
             for entry in self.__view.getSourceIndividualWordCounts():
                 self.__statFile.write(entry)
             self.__statFile.write("\n\n")
@@ -202,11 +198,11 @@ class masterWordCountController():
 
     def writeProcessedGlobalSubjectData(self):
         try:
-            self.__statFile.write("\t" + "global total word count - all subjects: ")
+            self.__statFile.write("\t" + "Global Total Word Count - all subjects: ")
             self.__statFile.write(self.__view.getSubjectTotalWordCount())
-            self.__statFile.write("\t" + "global unique word count - all subjects: ")
+            self.__statFile.write("\t" + "Global Unique Word Count - all subjects: ")
             self.__statFile.write(self.__view.getSubjectUniqueWordCount())
-            self.__statFile.write("\t" + "global individual word counts - all subjects: " + "\n")
+            self.__statFile.write("\t" + "Global Individual Word Count - all subjects: " + "\n")
             for entry in self.__view.getSubjectIndividualWordCount():
                 self.__statFile.write(entry)
             self.__statFile.write("\n\n")
@@ -216,11 +212,11 @@ class masterWordCountController():
 
     def writeProcessedGlobalSubjectValueData(self, subjectValue):
         try:
-            self.__statFile.write("\t" + "global total word count - for subject " + subjectValue + ": ")
+            self.__statFile.write("\t" + "Global Total Word Count - for subject " + subjectValue + ": ")
             self.__statFile.write(self.__view.getSubjectValueTotalWordCount(subjectValue))
-            self.__statFile.write("\t" + "global unique word count - for subject " + subjectValue + ": ")
+            self.__statFile.write("\t" + "Global Unique Word Count - for subject " + subjectValue + ": ")
             self.__statFile.write(self.__view.getSubjectValueUniqueWordCount(subjectValue))
-            self.__statFile.write("\t" + "global individual word counts - for subject " + subjectValue + ": " + "\n")
+            self.__statFile.write("\t" + "Global Individual Word Counts - for subject " + subjectValue + ": " + "\n")
             for entry in self.__view.getSubjectValueIndividualWordCount(subjectValue):
                 self.__statFile.write(entry)
             self.__statFile.write("\n\n")
@@ -234,6 +230,14 @@ class masterWordCountController():
         except:
             print("Failed to write to report file")
             print("Failed in writeHeaderRule")
+
+    def writeFinalCloserRule(self):
+        try:
+            self.__statFile.write(("=" * 79) + "\n")
+            self.__statFile.write(("=" * 79) + "\n")
+        except:
+            print("Failed to write to report file")
+            print("Failed in writeFinalCloserRule")
 
     def writeArticleTerminatorRule(self):
         try:
@@ -255,3 +259,10 @@ class masterWordCountController():
         except:
             print("Failed to write to report file")
             print("Failed in writeSubjectRule")
+
+    def writeEOFLine(self):
+        try:
+            self.__statFile.write("EndOfFile")
+        except:
+            print("Failed to write to report file")
+            print("Failed in writeEOFLine")

@@ -91,15 +91,19 @@ with open(newssource + '.' + nowDateString + '.stats.txt','w+', encoding="utf-8"
             newsDataController.writeSubjectDataHeader(currentSubject)
             newsDataController.writeSubjectRule()
 
-            newsDataController.writeArticleSegmentHeader() 
+            newsDataController.writeArticleSegmentHeader()
+            firstTime=True 
             for entry in articleInfoList:    #Begin writing article data to the file
                 if entry==None:
                     continue
+                if not firstTime:
+                    newsDataController.writeArticleTerminatorRule()
+                firstTime=False
                 newsDataController.writeProcessedArticleData(entry)
-                newsDataController.writeArticleTerminatorRule()
+                
+            newsDataController.writeTerminatorRule()
             ##  write subject values here (remember to add subject entry)
             newsDataController.writeGlobalSubjectValueDataHeader(currentSubject)    #Write Global subject value information to the file
-            #newsDataController.writeSubjectRule()
             newsDataController.writeProcessedGlobalSubjectValueData(currentSubject)
             newsDataController.writeTerminatorRule()
             articleInfoList.clear()    #clear all articles from the list, prepare for use for the next subject
@@ -111,8 +115,11 @@ with open(newssource + '.' + nowDateString + '.stats.txt','w+', encoding="utf-8"
     #newsDataController.writeSubjectRule()
 
 # 7. Write global headers and data
+    newsDataController.writeFinalCloserRule()
     newsDataController.writeGlobalSubjectDataHeader()
     newsDataController.writeProcessedGlobalSubjectData()
+    newsDataController.writeFinalCloserRule()
+    newsDataController.writeEOFLine()
 
     print("News data scan and stat logging complete\n")
 
