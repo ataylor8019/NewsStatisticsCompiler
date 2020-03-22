@@ -6,27 +6,27 @@ import datetime
 
 
 
-class masterWordCountController():
+class masterWordCountController():    #Responsible for passing input to model and writing output from view to file
 
     __model=None
     __view=None
     __statFile=None
 
-    def __init__(self):
+    def __init__(self):    #create model, view objects, pass model to view 
         self.__model=masterWordCountModel()
         self.__view=masterWordCountView(self.__model)
 
-    def commonInit(self):
+    def commonInit(self):    #initialize keys and dictionaries for article, subject, and global levels
         self.__model.setIndividualLabelKey("individual word count")
         self.__model.setAggregateLabelKey("total word count")
         self.__model.setUniqueLabelKey("unique word count")
         self.__model.setGlobalLabelKey("global data")
         self.__model.setSubjectLabelKey("subject data")
 
-    def setCurrentSubject(self, currentSubject):
+    def setCurrentSubject(self, currentSubject):    #Set subject to subject name of file being scanned
         self.__model.setSubjectValueLabelKey(currentSubject)
 
-    def getWordCount(self, paragraphString, subjectValue):
+    def getWordCount(self, paragraphString, subjectValue):    #count the words in each paragraph string passed
         try:
             if paragraphString != None:
                 preCountableParagraph = re.findall("([\w\d]+[\u2019\.]*?[\w\d]+|[\w\d]+)",paragraphString)
@@ -46,10 +46,10 @@ class masterWordCountController():
             print("Error in regex scan or list comprehension of paragraph object")
             print("Failed in getWordCount")
 
-    def setStatFilename(self,filename):
+    def setStatFilename(self,filename):    #Set the file that is being worked with
         self.__statFile=filename
 
-    def processTitle(self, jsonObject, titleList):
+    def processTitle(self, jsonObject, titleList):    #Set the article title that is currently being worked with, word statistic data will initially be bound to this key
         try:
             titleKey=jsonObject.get("title")
             titleList.append(titleKey)
@@ -58,7 +58,7 @@ class masterWordCountController():
             print("title key irretrievable or malformed")
             print("Failed in processTitle")
 
-    def setDateEntry(self, jsonObject):
+    def setDateEntry(self, jsonObject):    #Get the date that the currently scanned article was written
         try:
             dateStringHolder = jsonObject.get("articleDate")
         
@@ -71,7 +71,7 @@ class masterWordCountController():
             print("articleDate key irretrievable or malformed")
             print("Failed in setDateEntry")
 
-    def processArticleParagraphs(self, jsonObject, subjectValue):
+    def processArticleParagraphs(self, jsonObject, subjectValue):    #Articles are composed of paragraphs, this feeds individual paragraphs to the word count function getWordCount by using BeautifulSoup to break down the tags using xml parsing
         try:
             bodyList = jsonObject.get("articleBodyText")
             for p in bodyList:
@@ -81,35 +81,35 @@ class masterWordCountController():
             print("articleBodyText key irretrievable or malformed")
             print("Failed in processArticleParagraphs")
 
-    def prepareForArticleWordCount(self):
+    def prepareForArticleWordCount(self):    #Setup dictionary to collect article word statistic data
         try:
             self.__model.setArticleCollectionDictionaryTitleMemberDictionary()
         except:
             print("Failed to set ArticleCollectionDictionaryTitleMemberDictionary")
             print("Failed in prepareForArticleWordCount")
 
-    def prepareGlobalSubjectStatDictionary(self):
+    def prepareGlobalSubjectStatDictionary(self):    #Setup dictionary to collect word statistics for entire news source in global dictionary 
         self.__model.setGlobalCollectionDictionaryGlobalStatDictionary()
 
-    def prepareGlobalSubjectValueDictionary(self):
+    def prepareGlobalSubjectValueDictionary(self):    #Setup dictionary that holds subjects for entire news source in global dictionary
         self.__model.setGlobalCollectionDictionarySubjectDataMemberDictionary()
 
-    def prepareSubjectValueDictionaryDataMemberDictionary(self, subjectValue):
+    def prepareSubjectValueDictionaryDataMemberDictionary(self, subjectValue):    #Setup dictionary for specific subject in global subject value dictionary
         self.__model.setSubjectDictionaryGeneralSubjectValueDataMemberDictionary(subjectValue)
 
-    def isArticleNonAd(self):
+    def isArticleNonAd(self):    #Gets result of ad test from view
         return self.__view.isArticleNonAd()
 
-    def sortArticleWordDictionary(self):
+    def sortArticleWordDictionary(self):    #Sorts word keys in article dictionary by value size - in laymans terms, orders the word count from highest word count to lowest
         self.__model.sortWordDictionary()
 
-    def sortGlobalSubjectWordDictionary(self):
+    def sortGlobalSubjectWordDictionary(self):    #Sorts word keys in subject dictionary by value size - in laymans terms, orders the word count from highest word count to lowest
         self.__model.sortGlobalStatWordDictionary()
 
-    def sortGlobalSubjectValueWordDictionary(self, subjectValue):
+    def sortGlobalSubjectValueWordDictionary(self, subjectValue): #Sorts word keys in global subject dictionary by value size - in laymans terms, orders the word count from highest word count to lowest
         self.__model.sortGlobalSubjectValueWordDictionary(subjectValue)
 
-    def writeMasterReportHeader(self, newsSource):
+    def writeMasterReportHeader(self, newsSource):    #Writes formatted report header to file
         nowDate=datetime.datetime.now()
         nowDateString=nowDate.strftime("%B %d, %Y")
 
@@ -122,7 +122,7 @@ class masterWordCountController():
             print("Failed to write to report file")
             print("Failed in writeMasterReportHeader")
 
-    def writeSubjectDataHeader(self, subject):
+    def writeSubjectDataHeader(self, subject):    #Writes subject header for a given subject
         try:
             self.__statFile.write("Begin Statistical Data For Subject " + subject + "\n\n")
         except:
@@ -140,37 +140,37 @@ class masterWordCountController():
             print("Failed to write to report file")
             print("Failed in writeArticleDataHeader")
 
-    def writeArticleSegmentHeader(self):
+    def writeArticleSegmentHeader(self):    #Writes header for article section in a given subject
         try:
             self.__statFile.write("Article Listings:\n\n")
         except:
             print("Failed to write to report file")
             print("Failed in writeArticleSegmentHeader")
 
-    def writeSourceDataHeader(self):
+    def writeSourceDataHeader(self):    
         try:
             self.__statFile.write("Global Article Word Analysis\n\n")
         except:
             print("Failed to write to report file")
             print("Failed in writeSourceDataHeader")
 
-    def writeGlobalSubjectDataHeader(self):
+    def writeGlobalDataSummaryHeader(self):    #Writes header for global summary of all data
         try:
             self.__statFile.write("Global Article Word Analysis - all subjects\n\n")
             self.__statFile.write("First Article Date: " + self.__view.getEarliestDateString() + "\n")
             self.__statFile.write("Last Article Date: " + self.__view.getLatestDateString() + "\n")
         except:
             print("Failed to write to report file")
-            print("Failed in writeGlobalSubjectDataHeader")
+            print("Failed in writeGlobalDataSummaryHeader")
 
-    def writeGlobalSubjectValueDataHeader(self, subjectValue):
+    def writeGlobalBySubjectValueDataHeader(self, subjectValue):    #Writes header signifying beginning of data output for given subject
         try:
             self.__statFile.write("Global Article Word Analysis - for subject " + subjectValue + "\n\n")
         except:
             print("Failed to write to report file")
-            print("Failed in writeGlobalSubjectValueDataHeader")
+            print("Failed in writeGlobalBySubjectValueDataHeader")
 
-    def writeProcessedArticleData(self, articleTitle):
+    def writeProcessedArticleData(self, articleTitle):    #Write formatted data for a given article
         self.__model.setTitleKey(articleTitle)
         self.__statFile.write(articleTitle + "\n")
         self.__statFile.write("\t" + "total word count: " )
@@ -182,21 +182,7 @@ class masterWordCountController():
             self.__statFile.write(entry)
         self.__statFile.write("\n\n")
 
-    def writeProcessedSourceData(self):
-        try:
-            self.__statFile.write("\t" + "Global Total Word Count: ")
-            self.__statFile.write(self.__view.getSourceTotalWordCount())
-            self.__statFile.write("\t" + "Global Unique Word Count: ")
-            self.__statFile.write(self.__view.getSourceUniqueWordCount())
-            self.__statFile.write("\t" + "Global Individual Word Count: " + "\n")
-            for entry in self.__view.getSourceIndividualWordCounts():
-                self.__statFile.write(entry)
-            self.__statFile.write("\n\n")
-        except:
-            print("Failed to write to report file")
-            print("Failed in writeProcessedSourceData")
-
-    def writeProcessedGlobalSubjectData(self):
+    def writeProcessedGlobalData(self):    #Write formatted data for all data in news source
         try:
             self.__statFile.write("\t" + "Global Total Word Count - all subjects: ")
             self.__statFile.write(self.__view.getSubjectTotalWordCount())
@@ -208,9 +194,9 @@ class masterWordCountController():
             self.__statFile.write("\n\n")
         except:
             print("Failed to write to report file")
-            print("Failed in writeProcessedGlobalSubjectData")
+            print("Failed in writeProcessedGlobalData")
 
-    def writeProcessedGlobalSubjectValueData(self, subjectValue):
+    def writeProcessedGlobalBySubjectValueData(self, subjectValue):    #Writes header for summary of data in given subject
         try:
             self.__statFile.write("\t" + "Global Total Word Count - for subject " + subjectValue + ": ")
             self.__statFile.write(self.__view.getSubjectValueTotalWordCount(subjectValue))
@@ -222,16 +208,16 @@ class masterWordCountController():
             self.__statFile.write("\n\n")
         except:
             print("Failed to write to report file")
-            print("Failed in writeProcessedGlobalSubjectValueData")
+            print("Failed in writeProcessedGlobalBySubjectValueData")
 
-    def writeHeaderRule(self):
+    def writeHeaderRule(self):    #Writes header rule for entire report
         try:
             self.__statFile.write(("=" * 79) + "\n\n")
         except:
             print("Failed to write to report file")
             print("Failed in writeHeaderRule")
 
-    def writeFinalCloserRule(self):
+    def writeFinalCloserRule(self):    #Writes rule lines used in final closer section (generally the final news source word statistic summary)
         try:
             self.__statFile.write(("=" * 79) + "\n")
             self.__statFile.write(("=" * 79) + "\n")
@@ -239,28 +225,28 @@ class masterWordCountController():
             print("Failed to write to report file")
             print("Failed in writeFinalCloserRule")
 
-    def writeArticleTerminatorRule(self):
+    def writeArticleTerminatorRule(self):    #Writes rule lines signifying end of individual article
         try:
             self.__statFile.write(("-" * 79) + "\n\n")
         except:
             print("Failed to write to report file")
             print("Failed in writeArticleTerminatorRule")
 
-    def writeTerminatorRule(self):
+    def writeSubjectTerminatorRule(self):    #Writes rule line signifying end of subject
         try:
             self.__statFile.write(("*" * 79) + "\n\n")
         except:
             print("Failed to write to report file")
-            print("Failed in writeTerminatorRule")
+            print("Failed in writeSubjectTerminatorRule")
 
-    def writeSubjectRule(self):
+    def writeSubjectRule(self):    #Writes rule lines signifying beginning of subject entry
         try:
             self.__statFile.write(("|" * 79) + "\n\n")
         except:
             print("Failed to write to report file")
             print("Failed in writeSubjectRule")
 
-    def writeEOFLine(self):
+    def writeEOFLine(self):    #Writes end of file terminator string
         try:
             self.__statFile.write("EndOfFile")
         except:

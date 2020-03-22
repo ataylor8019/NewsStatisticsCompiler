@@ -101,11 +101,11 @@ with open(newssource + '.' + nowDateString + '.stats.txt','w+', encoding="utf-8"
                 firstTime=False
                 newsDataController.writeProcessedArticleData(entry)
                 
-            newsDataController.writeTerminatorRule()
+            newsDataController.writeSubjectTerminatorRule()
             ##  write subject values here (remember to add subject entry)
-            newsDataController.writeGlobalSubjectValueDataHeader(currentSubject)    #Write Global subject value information to the file
-            newsDataController.writeProcessedGlobalSubjectValueData(currentSubject)
-            newsDataController.writeTerminatorRule()
+            newsDataController.writeGlobalBySubjectValueDataHeader(currentSubject)    #Write Global subject value information to the file
+            newsDataController.writeProcessedGlobalBySubjectValueData(currentSubject)
+            newsDataController.writeSubjectTerminatorRule()
             articleInfoList.clear()    #clear all articles from the list, prepare for use for the next subject
             ## end writing individual subject values
 
@@ -116,8 +116,8 @@ with open(newssource + '.' + nowDateString + '.stats.txt','w+', encoding="utf-8"
 
 # 7. Write global headers and data
     newsDataController.writeFinalCloserRule()
-    newsDataController.writeGlobalSubjectDataHeader()
-    newsDataController.writeProcessedGlobalSubjectData()
+    newsDataController.writeGlobalDataSummaryHeader()
+    newsDataController.writeProcessedGlobalData()
     newsDataController.writeFinalCloserRule()
     newsDataController.writeEOFLine()
 
