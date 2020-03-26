@@ -29,7 +29,7 @@ class masterWordCountController():    #Responsible for passing input to model an
     def getWordCount(self, paragraphString, subjectValue):    #count the words in each paragraph string passed
         try:
             if paragraphString != None:
-                preCountableParagraph = re.findall("([\w\d]+[\u2019\.]*?[\w\d]+|[\w\d]+)",paragraphString)
+                preCountableParagraph = re.findall("([\w\d]+[\u2019\.\']*?[\w\d]+|[\w\d]+)",paragraphString)
                 countableParagraph = [x for x in preCountableParagraph if x not in ["a","an","the","A","An","The"]]
                 
                 try:
