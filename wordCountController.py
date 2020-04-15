@@ -29,19 +29,24 @@ class masterWordCountController():    #Responsible for passing input to model an
     def getWordCount(self, paragraphString, subjectValue):    #count the words in each paragraph string passed
         try:
             if paragraphString != None:
-                preCountableParagraph = re.findall("([\w\d]+[\u2019\.\']*?[\w\d]+|[\w\d]+)",paragraphString)
-                countableParagraph = [x for x in preCountableParagraph if x not in ["a","an","the","A","An","The"]]
+                #Updated the below to more accurately capture acronyms. Also removed error where words connected with ellipses were captured.
+                preCountableParagraph = re.findall("((?:\w\.){2,})|(\w+[\u2019\'\.]?\w+)",paragraphString)
+                #countableParagraph = [x for x in preCountableParagraph if x not in ["a","an","the","A","An","The"]]
                 
                 try:
-                    for wordItem in countableParagraph:
-                        self.__model.addTermToWordCountDictionaries(wordItem.upper(), subjectValue)
-                        self.__model.incrementGlobalStatDictionaryAggregateWordDataMember()
-                        self.__model.incrementGlobalSubjectValueDictionaryAggregateWordDataMember(subjectValue)
-                        self.__model.incrementTitleAggregateWordDataMember()
-                except:
+                    for wordGroup in preCountableParagraph:
+                        print(wordGroup)
+                        for wordItem in wordGroup:
+                            if wordItem != '' and wordItem not in ["a","an","the","A","An","The"]:
+                                self.__model.addTermToWordCountDictionaries(wordItem.upper(), subjectValue)
+                                self.__model.incrementGlobalStatDictionaryAggregateWordDataMember()
+                                self.__model.incrementGlobalSubjectValueDictionaryAggregateWordDataMember(subjectValue)
+                                self.__model.incrementTitleAggregateWordDataMember()
+                except Exception as ex:
                     print("Paragraph parsing failed\n")
                     print("Paragraph object missing data or contains unexpected data (such as an unclosed or unexpected HTML tag)")
                     print("Failed in getWordCount")
+                    print(ex)
         except:
             print("Error in regex scan or list comprehension of paragraph object")
             print("Failed in getWordCount")
