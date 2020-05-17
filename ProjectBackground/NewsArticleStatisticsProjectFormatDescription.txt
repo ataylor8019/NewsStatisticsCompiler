@@ -1,0 +1,122 @@
+News Article Statistic File Format Description
+
+
+Formatting:
+
+The final report file will be a text document. The structure of the document will be as follows:
+
+Master Report Header
+
+===============================================================================
+
+Subject Header
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Article Section Header
+
+Article Data
+-------------------------------------------------------------------------------
+Article Data
+*******************************************************************************
+…
+nth Article Data
+
+*******************************************************************************
+
+Subject Aggregate Data
+
+*******************************************************************************
+(Begin new subject block with Article Section Header, Articles, and Subject Aggregate Data section)
+…
+
+(Final Subject Block)
+
+*******************************************************************************
+
+===============================================================================
+===============================================================================
+
+Source Aggregate Data
+
+===============================================================================
+===============================================================================
+EndOfFile (Report Terminator Statement)
+
+
+
+The final report file should be a text document. The Master Report Header should be as follows:
+
+Lexical Frequency Report
+Word Frequency Listings by Subject, Article
+Raw News Source: [News Source]
+Date Written: [Month, Day, Year]
+
+The sections following this header should be the subject and article data.
+
+Each Source report will begin with the following header
+
+[News Source] is the name of the news company where the information was extracted
+
+Each News Source will be separated into the subjects described in the previous document, and the subjects labeled as follows:
+
+[Subject] Article Statistics
+
+Where Subject is the name of the subject where the articles came from. 
+
+This section will contain the individual article report statistics.
+
+The article information will be written as follows:
+
+
+Article Name
+[TAB]Article Total Word Count: #
+[TAB]Article Unique Word Count: #
+[TAB]Individual Word Count:
+[TAB][TAB]word n: #
+…
+…
+…
+Where “[TAB]” stands for a hard TAB character, Article Total Word Count is the total number of words, whether repeated or not, in the article (not counting articles, titles or attribution data); Article Unique Word Count is the total number of unique words in the article, not counting repetitions (not counting articles, titles or attribution data); “n” is the cardinal number of an individual word in the list of words existing in the article, “#” is the number of occurrences of that word, and “...” specifies the remaining words in the list.
+
+When all information for articles in a subject has been written, this section will be terminated with two line feeds, followed by an 79 character string of dashes (-).
+
+The second section of the sub report will be labeled as follows:
+
+Global Article Analysis, for subject [Subject]:
+
+
+[TAB]Global Subject Total Word Count: X
+[TAB]Global Subject Unique Word Count: X
+[TAB]Global Individual Word Counts:
+[TAB][TAB]word n: #
+
+Where “[TAB]” stands for a hard TAB character, Article Total Word Count is the total number of words, whether repeated or not, in the subject (not counting articles, titles or attribution data); Article Unique Word Count is the total number of unique words in the subject, not counting repetitions (not counting articles, titles or attribution data); “n” is the cardinal number of an individual word in the list of words existing in the subject(the number n itself is not to be printed) , “#” is the number of occurrences of that word, and “...” specifies the remaining words in the list.
+
+When all information for global statistics in a source has been written, this section will be terminated with two line feeds, followed by an 79 character string of asterisks (*).
+
+
+
+The final section of the sub report will be labeled as follows:
+
+Global Article Word Analysis - all subjects
+
+First Article Date: Month, Day, Year
+Last Article Date: Month, Day, Year
+[TAB]global total word count - all subjects: x
+[TAB]global unique word count - all subjects: y
+[TAB]global individual word counts - all subjects: 
+[TAB][TAB]word n: #
+
+Where “[TAB]” stands for a hard TAB character, “x” is the number of words in the news source in total (not counting articles, titles or attribution data), “y” is the number of unique words in the news source in total, “n” is the cardinal number of an individual word in the list of words existing in the article (the number n itself is not to be printed) , “#” is the number of occurrences of that word, and “...” specifies the remaining words in the list.
+
+When all information for all news sources has been written, the file will be terminated with two line feeds, followed by two 79 character strings of equal signs (=), another line feed, and the following statement:
+
+EndOfFile
+
+This signifies to any future program that this is the end of the data, and reading is to cease.
+
+The file shall be named as follows: [news source].[MMDDYYYY_HHMISS].stats.txt
+
+Where [news source] is the name of the news source (here being reuters, ap, or npr), the next part is the date the file was written - MM stands for a 2 digit month, DD is a 2 digit day, YYYY is the year in Julian format, HH is the hour in 24 hour format, MI is the minutes past the hour, and SS is seconds into the minute.
+If there are any concerns or questions about the file structure or format, please email me at wordresearcher@example.com BEFORE submitting any reports.
+
+Thank you for accepting this job.

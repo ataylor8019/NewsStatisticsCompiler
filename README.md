@@ -1,9 +1,14 @@
 # NewsStatisticsCompiler
  Python project to get statistical data from jl files
 
+Project Information:
+
+See directory "ProjectBackground" for initial project request and detailed output file information.
+See directory "TestData" for examples of typical input and corresponding output.
+
 Basic usage:
 
-WordStatGenerator.py -newssource "[news source]" where news source is the prefix of one or more .jl files containing article information scanned from a given news site.
+WordStatGenerator.py -newssource "[news source]" where news source is the prefix of one or more .jl files containing article information scanned from a given news site. Currently acceptable values are "ap", "reuters", and "npr".
 
 Input:
 

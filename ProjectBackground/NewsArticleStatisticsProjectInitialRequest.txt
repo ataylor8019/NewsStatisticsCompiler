@@ -1,0 +1,37 @@
+Dear contractor:
+
+I am a researcher, and I am conducting a study in regards to news articles and news sources. My hypothesis concerns variations in word usage and patterns, as determined by factors such as subject, outlet, and temporal proximity to various events.
+
+Data requirements:
+
+To complete my research, I require data from various major media outlets. The articles to be analyzed are to be selected from the following three outlets:
+
+AP
+Reuters
+NPR
+
+From these publications, gather articles from the following four topical areas:
+
+World
+Sports
+Technology
+Finance
+
+I require approximately 2 weeks of data from each publication. How you gather it is up to you, but the output should contain articles for the previous two weeks starting from the initial run.
+
+Once the articles are gathered, I need you to create a file that contains the following information and data points:
+
+Publication
+Subject
+Article Title
+
+First article publication date
+Last article publication date
+
+Total word count in article (not counting articles, titles or attribution data): by article, subject, and source
+Individual word count in article (not counting articles, titles or attribution data): by article, subject, and source
+Unique word occurrence count: by article, subject, and source
+
+The required format will be described in a separate file.
+
+Mail the completed file to wordresearcher@example.com
