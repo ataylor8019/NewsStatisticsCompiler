@@ -26,12 +26,159 @@ from wordCountController import masterWordCountController
 # 7) Write global headers and data
 # 8) End program
 
+def showHeader():
+    print("Welcome to News Article Word Statistic Generator 1.2")
+    print("Please choose one of the following options: \n")
+
+def showMainProgramOptions():
+    print("1) Scan News Articles")
+    print("2) Exit \n\n")
+
+def showNewsSourceHeader():
+    print("Choose one of the following options below to scan their news source files:\n")
+
+def showNewsSourceOptions():
+    print("1) ap")
+    print("2) npr")
+    print("3) reuters")
+    print("4) Return to main menu\n")
+
+#Quickie test menu set up just to get the menu running. Kept only for archival purposes, won't be used in actual script
+###############################################################################################################################
+# def showNewsSourceMenu():
+
+    # global newssource
+
+    # showNewsSourceHeader()
+    # showNewsSourceOptions()
+
+    # askAgain=True
+    
+    # while (askAgain):
+
+        # rawUserInput=input("Select news source:")
+
+        # inputMatch=re.fullmatch("^[0-9]$", rawUserInput)
+        # if inputMatch:
+            # userInput=int(rawUserInput)
+            
+            # if (userInput==1):
+                # newssource = "ap"
+            # elif (userInput==2):
+                # newssource = "npr"
+            # elif (userInput==3):
+                # newssource = "reuters"
+            # elif (userInput==4):
+                # askAgain=False
+            # else:
+                # #Ask the question again, no valid input was given
+                # continue
+        # else:
+            # continue
+
+        # askAgain=False
+
+
+# def showMainMenu():
+    # showHeader()
+    # showMainProgramOptions()
+    
+    # askAgain=True
+    # continueMenuLoop=True
+    # global newssource
+
+    # while (askAgain):
+        # rawUserInput=input("Execute Option: ")
+
+        # inputMatch=re.fullmatch("^[0-9]$", rawUserInput)
+
+        # if inputMatch:
+            # userInput=int(rawUserInput)
+            # if (userInput==1):
+                # showNewsSourceMenu()
+                # if (newssource != None):
+                    # continueMenuLoop=False
+                # break
+            # elif (userInput==2):
+                # askAgain=False
+                # os._exit(0)
+            # else:
+                # continue
+        # else:
+            # continue
+
+    # return continueMenuLoop
+
+
+def mainMenuFilter():
+    askAgain=True
+    while (askAgain):
+        rawUserInput=input("Execute Option: ")
+
+        inputMatch=re.fullmatch("^[12]$", rawUserInput)
+
+        if inputMatch:
+            return int(rawUserInput)
+        else:
+            continue
+
+def newsMenuFilter():
+    askAgain=True
+    
+    while (askAgain):
+
+        rawUserInput=input("Select news source:")
+
+        inputMatch=re.fullmatch("^[1-4]$", rawUserInput)
+        if inputMatch:
+            return int(rawUserInput)
+        else:
+            continue
+
 
 # 1. Set up initial parameters
+
+
+
+
 processParser=argparse.ArgumentParser()
 processParser.add_argument("--newssource")
 inputArguments=processParser.parse_args()
 newssource=inputArguments.newssource
+
+#Setup menu loop
+loopMainMenu=True
+
+
+
+#if no argument has been passed to the variable "newssource", begin menu routine to get the variable
+if newssource == None:
+
+    while (loopMainMenu):
+
+        showHeader()
+        showMainProgramOptions()
+        initialMenuEntry=mainMenuFilter()
+        
+        if (initialMenuEntry==2):
+            os._exit(0)
+        
+        showNewsSourceHeader()
+        showNewsSourceOptions()
+        newsAction=newsMenuFilter()
+        
+        if (newsAction==1):
+            newssource = "ap"
+        elif (newsAction==2):
+            newssource = "npr"
+        elif (newsAction==3):
+            newssource = "reuters"
+        elif (newsAction==4):
+            continue
+        
+        loopMainMenu=False
+    # while (loopMainMenu):
+        # loopMainMenu = showMainMenu()
 
 nowDate=datetime.datetime.now()
 nowDateString=nowDate.strftime("%m%d%Y_%H%M%S")
