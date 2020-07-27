@@ -43,73 +43,6 @@ def showNewsSourceOptions():
     print("3) reuters")
     print("4) Return to main menu\n")
 
-#Quickie test menu set up just to get the menu running. Kept only for archival purposes, won't be used in actual script
-###############################################################################################################################
-# def showNewsSourceMenu():
-
-    # global newssource
-
-    # showNewsSourceHeader()
-    # showNewsSourceOptions()
-
-    # askAgain=True
-    
-    # while (askAgain):
-
-        # rawUserInput=input("Select news source:")
-
-        # inputMatch=re.fullmatch("^[0-9]$", rawUserInput)
-        # if inputMatch:
-            # userInput=int(rawUserInput)
-            
-            # if (userInput==1):
-                # newssource = "ap"
-            # elif (userInput==2):
-                # newssource = "npr"
-            # elif (userInput==3):
-                # newssource = "reuters"
-            # elif (userInput==4):
-                # askAgain=False
-            # else:
-                # #Ask the question again, no valid input was given
-                # continue
-        # else:
-            # continue
-
-        # askAgain=False
-
-
-# def showMainMenu():
-    # showHeader()
-    # showMainProgramOptions()
-    
-    # askAgain=True
-    # continueMenuLoop=True
-    # global newssource
-
-    # while (askAgain):
-        # rawUserInput=input("Execute Option: ")
-
-        # inputMatch=re.fullmatch("^[0-9]$", rawUserInput)
-
-        # if inputMatch:
-            # userInput=int(rawUserInput)
-            # if (userInput==1):
-                # showNewsSourceMenu()
-                # if (newssource != None):
-                    # continueMenuLoop=False
-                # break
-            # elif (userInput==2):
-                # askAgain=False
-                # os._exit(0)
-            # else:
-                # continue
-        # else:
-            # continue
-
-    # return continueMenuLoop
-
-
 def mainMenuFilter():
     askAgain=True
     while (askAgain):
@@ -134,6 +67,97 @@ def newsMenuFilter():
             return int(rawUserInput)
         else:
             continue
+
+def directoryLoop(dataController, articleInfoListArgument):
+
+# 5. Begin loop through all files in directory
+    for fileItem in os.scandir(path="."):    # Begin main file read loop
+        lock=re.match(rf"{newssource}.*?(([wW]orld)|([pP]olitics)|([tT]echnology)|([bB]usiness)).*?", fileItem.name)    #Find any file that has those subjects in the name
+        
+        if lock:    #Found a file that contains a desired subject. Begin reading that file
+            currentFile=fileItem.name    #Get the filename
+            currentSubject=lock.group(1)    #Get the subject
+            
+#      a) Set up subject workspace in controller for current subject (specified by name of file found)
+            dataController.prepareSubjectValueDictionaryDataMemberDictionary(currentSubject)    #Add a dictionary entry for the current subject
+            
+#      b) Begin reading through found file - for each line in found file
+            with jsonlines.open(currentFile,'r') as jsonFileToRead:    #Open the filename we stored, perform json reading operations using the work controller
+                try:
+                    jsonFileLoop(dataController, jsonFileToRead, articleInfoListArgument, currentSubject)
+                except:
+                    print("JSON object malformed or nonexistent")
+                    print("Skipping file " + currentFile + ": file is not recognized as a JSON Lines file")
+                    continue
+
+#      c) Sort the data gathered during subject file read
+                dataController.sortGlobalSubjectValueWordDictionary(currentSubject)    #Sort the data we have gotten out of the current subject file that is now in the current subject dictionary
+                # ^^^ end of subject value entry, we can sort the words in the currentSubject value by occurrence ^^^
+
+#      d) Write information gathered for subject, individual articles to the record file opened in 4
+            subjectArticleWriteLoop(dataController, articleInfoListArgument, currentSubject)
+                
+            subjectSummaryWrite(dataController, currentSubject)
+            articleInfoList.clear()    #clear all articles from the list, prepare for use for the next subject
+            ## end writing individual subject values
+
+# 6. Sort global data gathered during all valid subject file reads gathered in 5
+    dataController.sortGlobalSubjectWordDictionary()    #Sort the data for all words gottten out of all the subject files, and stored in the global word count dictionary
+    # ^^^ end of all subjects in news source, we can sort the words in all subjects in the news source by occurrence ^^^
+    #newsDataController.writeSubjectRule()
+
+# 7. Write global headers and data
+    dataController.writeFinalCloserRule()
+    dataController.writeGlobalDataSummaryHeader()
+    dataController.writeProcessedGlobalData()
+    dataController.writeFinalCloserRule()
+    dataController.writeEOFLine()
+
+    print("News data scan and stat logging complete\n")
+
+
+
+
+
+
+def jsonFileLoop(dataController, jsonFileToRead, articleInfoListArgument, currentSubjectArgument):
+    for jsonObject in jsonFileToRead:
+#       i) read json data in line, create article workspace, add to article workspace
+        dataController.processTitle(jsonObject, articleInfoListArgument)
+                        
+        if not dataController.isArticleNonAd():
+                continue
+        dataController.prepareForArticleWordCount()
+        dataController.setDateEntry(jsonObject)
+#       ii) calculate statistic data for article
+        dataController.processArticleParagraphs(jsonObject, currentSubjectArgument)
+#        iii) sort statistic data
+        dataController.sortArticleWordDictionary()
+
+
+def subjectArticleWriteLoop(dataController, articleInfoListArgument, currentSubjectArgument):
+#d) Write information gathered for subject, individual articles to the record file opened in 4
+    dataController.writeSubjectDataHeader(currentSubjectArgument)
+    dataController.writeSubjectRule()
+    
+    dataController.writeArticleSegmentHeader()
+    firstTime=True 
+    for entry in articleInfoListArgument:    #Begin writing article data to the file
+        if entry==None:
+            continue
+        if not firstTime:
+            dataController.writeArticleTerminatorRule()
+        firstTime=False
+        dataController.writeProcessedArticleData(entry)
+
+def subjectSummaryWrite(dataController, currentSubjectArgument):
+    dataController.writeSubjectTerminatorRule()
+    ##  write subject values here (remember to add subject entry)
+    dataController.writeGlobalBySubjectValueDataHeader(currentSubjectArgument)    #Write Global subject value information to the file
+    dataController.writeProcessedGlobalBySubjectValueData(currentSubjectArgument)
+    dataController.writeSubjectTerminatorRule()
+
+
 
 
 # 1. Set up initial parameters
@@ -199,75 +223,81 @@ with open(newssource + '.' + nowDateString + '.stats.txt','w+', encoding="utf-8"
     newsDataController.writeMasterReportHeader(newssource)
     newsDataController.writeHeaderRule()
 
-# 5. Begin loop through all files in directory
-    for fileItem in os.scandir(path="."):    # Begin main file read loop
-        lock=re.match(rf"{newssource}.*?(([wW]orld)|([pP]olitics)|([tT]echnology)|([bB]usiness)).*?", fileItem.name)    #Find any file that has those subjects in the name
+    directoryLoop(newsDataController, articleInfoList)
+
+
+
+
+
+# # 5. Begin loop through all files in directory
+    # for fileItem in os.scandir(path="."):    # Begin main file read loop
+        # lock=re.match(rf"{newssource}.*?(([wW]orld)|([pP]olitics)|([tT]echnology)|([bB]usiness)).*?", fileItem.name)    #Find any file that has those subjects in the name
         
-        if lock:    #Found a file that contains a desired subject. Begin reading that file
-            currentFile=fileItem.name    #Get the filename
-            currentSubject=lock.group(1)    #Get the subject
+        # if lock:    #Found a file that contains a desired subject. Begin reading that file
+            # currentFile=fileItem.name    #Get the filename
+            # currentSubject=lock.group(1)    #Get the subject
             
-#      a) Set up subject workspace in controller for current subject (specified by name of file found)
-            newsDataController.prepareSubjectValueDictionaryDataMemberDictionary(currentSubject)    #Add a dictionary entry for the current subject
+# #      a) Set up subject workspace in controller for current subject (specified by name of file found)
+            # newsDataController.prepareSubjectValueDictionaryDataMemberDictionary(currentSubject)    #Add a dictionary entry for the current subject
             
-#      b) Begin reading through found file - for each line in found file
-            with jsonlines.open(currentFile,'r') as jsonFileToRead:    #Open the filename we stored, perform json reading operations using the work controller
-                try:
-                    for jsonObject in jsonFileToRead:
-#          i) read json data in line, create article workspace, add to article workspace
-                        newsDataController.processTitle(jsonObject, articleInfoList)
+# #      b) Begin reading through found file - for each line in found file
+            # with jsonlines.open(currentFile,'r') as jsonFileToRead:    #Open the filename we stored, perform json reading operations using the work controller
+                # try:
+                    # for jsonObject in jsonFileToRead:
+# #          i) read json data in line, create article workspace, add to article workspace
+                        # newsDataController.processTitle(jsonObject, articleInfoList)
                         
-                        if not newsDataController.isArticleNonAd():
-                            continue
-                        newsDataController.prepareForArticleWordCount()
-                        newsDataController.setDateEntry(jsonObject)
-#         ii) calculate statistic data for article
-                        newsDataController.processArticleParagraphs(jsonObject, currentSubject)
-#        iii) sort statistic data
-                        newsDataController.sortArticleWordDictionary()
-                except:
-                    print("JSON object malformed or nonexistent")
-                    print("Skipping file " + currentFile + ": file is not recognized as a JSON Lines file")
-                    continue
+                        # if not newsDataController.isArticleNonAd():
+                            # continue
+                        # newsDataController.prepareForArticleWordCount()
+                        # newsDataController.setDateEntry(jsonObject)
+# #         ii) calculate statistic data for article
+                        # newsDataController.processArticleParagraphs(jsonObject, currentSubject)
+# #        iii) sort statistic data
+                        # newsDataController.sortArticleWordDictionary()
+                # except:
+                    # print("JSON object malformed or nonexistent")
+                    # print("Skipping file " + currentFile + ": file is not recognized as a JSON Lines file")
+                    # continue
 
-#      c) Sort the data gathered during subject file read
-                newsDataController.sortGlobalSubjectValueWordDictionary(currentSubject)    #Sort the data we have gotten out of the current subject file that is now in the current subject dictionary
-                # ^^^ end of subject value entry, we can sort the words in the currentSubject value by occurrence ^^^
+# #      c) Sort the data gathered during subject file read
+                # newsDataController.sortGlobalSubjectValueWordDictionary(currentSubject)    #Sort the data we have gotten out of the current subject file that is now in the current subject dictionary
+                # # ^^^ end of subject value entry, we can sort the words in the currentSubject value by occurrence ^^^
 
-#      d) Write information gathered for subject, individual articles to the record file opened in 4
-            newsDataController.writeSubjectDataHeader(currentSubject)
-            newsDataController.writeSubjectRule()
+# #      d) Write information gathered for subject, individual articles to the record file opened in 4
+            # newsDataController.writeSubjectDataHeader(currentSubject)
+            # newsDataController.writeSubjectRule()
 
-            newsDataController.writeArticleSegmentHeader()
-            firstTime=True 
-            for entry in articleInfoList:    #Begin writing article data to the file
-                if entry==None:
-                    continue
-                if not firstTime:
-                    newsDataController.writeArticleTerminatorRule()
-                firstTime=False
-                newsDataController.writeProcessedArticleData(entry)
+            # newsDataController.writeArticleSegmentHeader()
+            # firstTime=True 
+            # for entry in articleInfoList:    #Begin writing article data to the file
+                # if entry==None:
+                    # continue
+                # if not firstTime:
+                    # newsDataController.writeArticleTerminatorRule()
+                # firstTime=False
+                # newsDataController.writeProcessedArticleData(entry)
                 
-            newsDataController.writeSubjectTerminatorRule()
-            ##  write subject values here (remember to add subject entry)
-            newsDataController.writeGlobalBySubjectValueDataHeader(currentSubject)    #Write Global subject value information to the file
-            newsDataController.writeProcessedGlobalBySubjectValueData(currentSubject)
-            newsDataController.writeSubjectTerminatorRule()
-            articleInfoList.clear()    #clear all articles from the list, prepare for use for the next subject
-            ## end writing individual subject values
+            # newsDataController.writeSubjectTerminatorRule()
+            # ##  write subject values here (remember to add subject entry)
+            # newsDataController.writeGlobalBySubjectValueDataHeader(currentSubject)    #Write Global subject value information to the file
+            # newsDataController.writeProcessedGlobalBySubjectValueData(currentSubject)
+            # newsDataController.writeSubjectTerminatorRule()
+            # articleInfoList.clear()    #clear all articles from the list, prepare for use for the next subject
+            # ## end writing individual subject values
 
-# 6. Sort global data gathered during all valid subject file reads gathered in 5
-    newsDataController.sortGlobalSubjectWordDictionary()    #Sort the data for all words gottten out of all the subject files, and stored in the global word count dictionary
-    # ^^^ end of all subjects in news source, we can sort the words in all subjects in the news source by occurrence ^^^
-    #newsDataController.writeSubjectRule()
+# # 6. Sort global data gathered during all valid subject file reads gathered in 5
+    # newsDataController.sortGlobalSubjectWordDictionary()    #Sort the data for all words gottten out of all the subject files, and stored in the global word count dictionary
+    # # ^^^ end of all subjects in news source, we can sort the words in all subjects in the news source by occurrence ^^^
+    # #newsDataController.writeSubjectRule()
 
-# 7. Write global headers and data
-    newsDataController.writeFinalCloserRule()
-    newsDataController.writeGlobalDataSummaryHeader()
-    newsDataController.writeProcessedGlobalData()
-    newsDataController.writeFinalCloserRule()
-    newsDataController.writeEOFLine()
+# # 7. Write global headers and data
+    # newsDataController.writeFinalCloserRule()
+    # newsDataController.writeGlobalDataSummaryHeader()
+    # newsDataController.writeProcessedGlobalData()
+    # newsDataController.writeFinalCloserRule()
+    # newsDataController.writeEOFLine()
 
-    print("News data scan and stat logging complete\n")
+    # print("News data scan and stat logging complete\n")
 
 # 8. End program
